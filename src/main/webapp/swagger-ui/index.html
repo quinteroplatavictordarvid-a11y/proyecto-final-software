@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>UTN GolMundial 2026 - API Estadísticas</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/5.11.0/swagger-ui.min.css">
+</head>
+<body>
+    <div id="swagger-ui"></div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/5.11.0/swagger-ui-bundle.min.js"></script>
+    <script>
+        const spec = {
+            openapi: "3.0.0",
+            info: {
+                title: "UTN GolMundial 2026 - Backend Estadísticas",
+                version: "1.0.0",
+                description: "API REST para el seguimiento estadístico del Mundial de Fútbol 2026"
+            },
+            servers: [{ url: "http://localhost:8081/GolMundial-Estadisticas-1.0-SNAPSHOT/api" }],
+            paths: {
+                "/torneo/metadata": {
+                    get: { summary: "Metadata del torneo", tags: ["Torneo"],
+                        responses: { "200": { description: "Nombre, anfitriones, fechas y totales del torneo" } } }
+                },
+                "/fases": {
+                    get: { summary: "Listar fases del torneo", tags: ["Torneo"],
+                        responses: { "200": { description: "Lista de fases (GRUPOS, DIECISEISAVOS, OCTAVOS, CUARTOS, SEMIFINAL, TERCER_PUESTO, FINAL)" } } }
+                },
+                "/selecciones": {
+                    get: { summary: "Listar 48 selecciones", tags: ["Selecciones"],
+                        responses: { "200": { description: "Lista de selecciones" } } }
+                },
+                "/selecciones/{id}": {
+                    get: { summary: "Detalle de selección", tags: ["Selecciones"],
+                        parameters: [{ name: "id", in: "path", required: true, schema: { type: "integer" } }],
+                        responses: { "200": { description: "Selección encontrada" } } }
+                },
+                "/grupos": {
+                    get: { summary: "Listar 12 grupos", tags: ["Grupos"],
+                        responses: { "200": { description: "Lista de grupos" } } }
+                },
+                "/sedes": {
+                    get: { summary: "Listar 16 sedes", tags: ["Sedes"],
+                        responses: { "200": { description: "Lista de sedes" } } }
+                },
+                "/partidos": {
+                    get: { summary: "Calendario de partidos", tags: ["Partidos"],
+                        parameters: [
+                            { name: "grupo", in: "query", schema: { type: "string" } },
+                            { name: "fase", in: "query", schema: { type: "string" } },
+                            { name: "estado", in: "query", schema: { type: "string" } }
+                        ],
+                        responses: { "200": { description: "Lista de partidos" } } }
+                },
+                "/partidos/{id}": {
+                    get: { summary: "Detalle de partido", tags: ["Partidos"],
+                        parameters: [{ name: "id", in: "path", required: true, schema: { type: "integer" } }],
+                        responses: { "200": { description: "Partido encontrado" } } }
+                },
+                "/posiciones": {
+                    get: { summary: "Tabla de posiciones (todos los grupos)", tags: ["Posiciones"],
+                        responses: { "200": { description: "Tabla de posiciones" } } }
+                },
+                "/posiciones/{grupo}": {
+                    get: { summary: "Tabla de posiciones de un grupo", tags: ["Posiciones"],
+                        parameters: [{ name: "grupo", in: "path", required: true, schema: { type: "string" } }],
+                        responses: { "200": { description: "Tabla de posiciones del grupo" } } }
+                },
+                "/estadisticas/selecciones": {
+                    get: { summary: "Estadísticas de todas las selecciones", tags: ["Estadísticas"],
+                        responses: { "200": { description: "Estadísticas" } } }
+                },
+                "/estadisticas/selecciones/{id}": {
+                    get: { summary: "Estadística de una selección", tags: ["Estadísticas"],
+                        parameters: [{ name: "id", in: "path", required: true, schema: { type: "integer" } }],
+                        responses: { "200": { description: "Estadística de la selección" } } }
+                },
+                "/auth/login": {
+                    post: { summary: "Iniciar sesión", tags: ["Autenticación"],
+                        requestBody: { content: { "application/json": { schema: {
+                            type: "object",
+                            properties: { username: { type: "string" }, password: { type: "string" } }
+                        }}}},
+                        responses: { "200": { description: "Login exitoso con token" } } }
+                },
+                "/auth/registro": {
+                    post: { summary: "Registrar usuario", tags: ["Autenticación"],
+                        requestBody: { content: { "application/json": { schema: {
+                            type: "object",
+                            properties: { username: { type: "string" }, nombre: { type: "string" }, password: { type: "string" } }
+                        }}}},
+                        responses: { "201": { description: "Usuario creado" } } }
+                },
+                "/admin/partidos/{id}/resultado": {
+                    put: { summary: "Registrar resultado oficial", tags: ["Administración"],
+                        parameters: [{ name: "id", in: "path", required: true, schema: { type: "integer" } }],
+                        requestBody: { content: { "application/json": { schema: {
+                            type: "object",
+                            properties: { golesLocal: { type: "integer" }, golesVisitante: { type: "integer" }, estado: { type: "string" }, usuarioAdminId: { type: "integer" } }
+                        }}}},
+                        responses: { "200": { description: "Resultado actualizado" } } }
+                },
+                "/admin/selecciones": {
+                    post: { summary: "Crear selección", tags: ["Administración"],
+                        requestBody: { content: { "application/json": { schema: {
+                            type: "object",
+                            properties: {
+                                codigoFifa: { type: "string" }, nombre: { type: "string" },
+                                grupo: { type: "string" }, confederacion: { type: "string" },
+                                esAnfitrion: { type: "boolean" }, clasificacion: { type: "string" }
+                            }
+                        }}}},
+                        responses: { "201": { description: "Selección creada" } } }
+                },
+                "/admin/selecciones/{id}": {
+                    put: { summary: "Actualizar selección", tags: ["Administración"],
+                        parameters: [{ name: "id", in: "path", required: true, schema: { type: "integer" } }],
+                        requestBody: { content: { "application/json": { schema: {
+                            type: "object",
+                            properties: {
+                                codigoFifa: { type: "string" }, nombre: { type: "string" },
+                                grupo: { type: "string" }, confederacion: { type: "string" },
+                                esAnfitrion: { type: "boolean" }, clasificacion: { type: "string" }
+                            }
+                        }}}},
+                        responses: { "200": { description: "Selección actualizada" } } }
+                },
+                "/admin/partidos": {
+                    post: { summary: "Crear partido", tags: ["Administración"],
+                        requestBody: { content: { "application/json": { schema: {
+                            type: "object",
+                            properties: {
+                                numeroPartidoFifa: { type: "integer" }, fase: { type: "string" }, grupo: { type: "string" },
+                                seleccionLocalId: { type: "integer" }, seleccionVisitanteId: { type: "integer" },
+                                fechaHoraUtc: { type: "string" }, sedeId: { type: "integer" }, usuarioAdminId: { type: "integer" }
+                            }
+                        }}}},
+                        responses: { "201": { description: "Partido creado" } } }
+                },
+                "/admin/partidos/{id}": {
+                    put: { summary: "Actualizar fecha, sede o estado de un partido", tags: ["Administración"],
+                        parameters: [{ name: "id", in: "path", required: true, schema: { type: "integer" } }],
+                        requestBody: { content: { "application/json": { schema: {
+                            type: "object",
+                            properties: { fechaHoraUtc: { type: "string" }, sedeId: { type: "integer" }, estado: { type: "string" }, usuarioAdminId: { type: "integer" } }
+                        }}}},
+                        responses: { "200": { description: "Partido actualizado" } } }
+                },
+                "/admin/auditoria": {
+                    get: { summary: "Consultar acciones administrativas", tags: ["Administración"],
+                        parameters: [{ name: "entidad", in: "query", schema: { type: "string" }, description: "Filtrar por entidad (SELECCION, PARTIDO, etc.)" }],
+                        responses: { "200": { description: "Lista de acciones registradas" } } }
+                }
+            }
+        };
+
+        SwaggerUIBundle({
+            spec: spec,
+            dom_id: '#swagger-ui',
+            presets: [SwaggerUIBundle.presets.apis, SwaggerUIBundle.SwaggerUIStandalonePreset],
+            layout: "BaseLayout",
+            tryItOutEnabled: true
+        });
+    </script>
+</body>
+</html>
