@@ -18,7 +18,6 @@ import org.mindrot.jbcrypt.BCrypt;
 
 @Path("/auth")
 public class AuthResource {
-
     @POST
     @Path("/login")
     @Consumes(MediaType.APPLICATION_JSON)
@@ -27,17 +26,14 @@ public class AuthResource {
         try {
             String username = extractJson(body, "username");
             String password = extractJson(body, "password");
-
             if (username == null || password == null) {
                 return Response.status(400)
                     .entity("{\"success\":false,\"message\":\"Username y password requeridos\"}")
                     .build();
             }
-
             String sql = "SELECT u.id, u.username, u.nombre, u.password_hash, r.nombre AS rol " +
                          "FROM usuarios u JOIN roles r ON u.rol_id = r.id " +
                          "WHERE u.username = ? AND u.activo = true";
-
             try (Connection conn = DatabaseConfig.getConnection();
                  PreparedStatement stmt = conn.prepareStatement(sql)) {
                 stmt.setString(1, username);
@@ -48,11 +44,8 @@ public class AuthResource {
                     if (BCrypt.checkpw(password, hash)) {
                         String token = java.util.UUID.randomUUID().toString();
                         return Response.ok("{" +
-                            "\"success\":true," +
                             "\"token\":\"" + token + "\"," +
-                            "\"usuarioId\":" + rs.getInt("id") + "," +
-                            "\"username\":\"" + rs.getString("username") + "\"," +
-                            "\"nombre\":\"" + rs.getString("nombre") + "\"," +
+                            "\"usuarioId\":" + rs.getLong("id") + "," +
                             "\"rol\":\"" + rs.getString("rol") + "\"" +
                             "}").build();
                     }
@@ -67,7 +60,6 @@ public class AuthResource {
                 .build();
         }
     }
-
     @POST
     @Path("/registro")
     @Consumes(MediaType.APPLICATION_JSON)
@@ -83,9 +75,7 @@ public class AuthResource {
                     .entity("{\"success\":false,\"message\":\"username, nombre y password requeridos\"}")
                     .build();
             }
-
             String hash = BCrypt.hashpw(password, BCrypt.gensalt(12));
-
             String sql = "INSERT INTO usuarios(username, nombre, password_hash, rol_id) " +
                          "VALUES (?, ?, ?, (SELECT id FROM roles WHERE nombre = 'USUARIO')) " +
                          "RETURNING id";
@@ -118,7 +108,6 @@ public class AuthResource {
         }
         return Response.serverError().entity("{\"success\":false,\"message\":\"Error inesperado\"}").build();
     }
-
     private String extractJson(String json, String key) {
         try {
             String search = "\"" + key + "\"";
