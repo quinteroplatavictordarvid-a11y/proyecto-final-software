@@ -27,11 +27,13 @@ public class PartidoResource {
             "p.seleccion_local_id, sl.codigo_fifa AS local_codigo, sl.nombre AS local_nombre, " +
             "p.seleccion_visitante_id, sv.codigo_fifa AS visitante_codigo, sv.nombre AS visitante_nombre, " +
             "p.fecha_hora_utc, p.sede_id, se.nombre AS sede_nombre, se.ciudad, se.pais, " +
-            "p.estado, p.goles_local, p.goles_visitante " +
+            "p.estado, p.goles_local, p.goles_visitante, p.ganador_penales_id, " +
+            "gp.codigo_fifa AS ganador_penales_codigo, gp.nombre AS ganador_penales_nombre " +
             "FROM partidos p " +
             "JOIN selecciones sl ON p.seleccion_local_id = sl.id " +
             "JOIN selecciones sv ON p.seleccion_visitante_id = sv.id " +
             "JOIN sedes se ON p.sede_id = se.id " +
+            "LEFT JOIN selecciones gp ON p.ganador_penales_id = gp.id " +
             "WHERE 1=1 ");
         List<String> params = new ArrayList<>();
         if (grupo != null && !grupo.isEmpty()) {
@@ -77,11 +79,13 @@ public class PartidoResource {
             "p.seleccion_local_id, sl.codigo_fifa AS local_codigo, sl.nombre AS local_nombre, " +
             "p.seleccion_visitante_id, sv.codigo_fifa AS visitante_codigo, sv.nombre AS visitante_nombre, " +
             "p.fecha_hora_utc, p.sede_id, se.nombre AS sede_nombre, se.ciudad, se.pais, " +
-            "p.estado, p.goles_local, p.goles_visitante " +
+            "p.estado, p.goles_local, p.goles_visitante, p.ganador_penales_id, " +
+            "gp.codigo_fifa AS ganador_penales_codigo, gp.nombre AS ganador_penales_nombre " +
             "FROM partidos p " +
             "JOIN selecciones sl ON p.seleccion_local_id = sl.id " +
             "JOIN selecciones sv ON p.seleccion_visitante_id = sv.id " +
             "JOIN sedes se ON p.sede_id = se.id " +
+            "LEFT JOIN selecciones gp ON p.ganador_penales_id = gp.id " +
             "WHERE p.id = ?";
         try (Connection conn = DatabaseConfig.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
@@ -98,6 +102,7 @@ public class PartidoResource {
         }
     }
     private StringBuilder filaToJson(ResultSet rs) throws Exception {
+        Object ganadorPenalesIdObj = rs.getObject("ganador_penales_id");
         StringBuilder json = new StringBuilder();
         json.append("{")
             .append("\"id\":").append(rs.getInt("id")).append(",")
@@ -117,7 +122,10 @@ public class PartidoResource {
             .append("\"pais\":\"").append(rs.getString("pais")).append("\",")
             .append("\"estado\":\"").append(rs.getString("estado")).append("\",")
             .append("\"golesLocal\":").append(rs.getObject("goles_local") != null ? rs.getInt("goles_local") : "null").append(",")
-            .append("\"golesVisitante\":").append(rs.getObject("goles_visitante") != null ? rs.getInt("goles_visitante") : "null")
+            .append("\"golesVisitante\":").append(rs.getObject("goles_visitante") != null ? rs.getInt("goles_visitante") : "null").append(",")
+            .append("\"ganadorPenalesId\":").append(ganadorPenalesIdObj != null ? rs.getInt("ganador_penales_id") : "null").append(",")
+            .append("\"ganadorPenalesCodigo\":").append(ganadorPenalesIdObj != null ? "\"" + rs.getString("ganador_penales_codigo") + "\"" : "null").append(",")
+            .append("\"ganadorPenalesNombre\":").append(ganadorPenalesIdObj != null ? "\"" + rs.getString("ganador_penales_nombre") + "\"" : "null")
             .append("}");
         return json;
     }
