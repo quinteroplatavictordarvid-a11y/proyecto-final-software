@@ -11,7 +11,6 @@ import ec.edu.utn.golmundial.estadisticas.controller.SedeResource;
 import ec.edu.utn.golmundial.estadisticas.controller.SeleccionResource;
 import ec.edu.utn.golmundial.estadisticas.controller.TorneoResource;
 import ec.edu.utn.golmundial.estadisticas.controller.AuthResource;
-import ec.edu.utn.golmundial.estadisticas.config.CorsFilter;
 import jakarta.ws.rs.ApplicationPath;
 import jakarta.ws.rs.core.Application;
 import java.util.HashSet;
