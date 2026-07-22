@@ -1,0 +1,5 @@
+[build]
+command = "mvn clean package"
+
+[start]
+command = "java -jar target/dependency/webapp-runner.jar target/*.war --port $PORT"
